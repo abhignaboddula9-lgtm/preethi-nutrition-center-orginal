@@ -20,7 +20,12 @@
     logout: () => {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      const protectedPaths = ['/admin', '/dashboard'];
+      const currentPath = window.location.pathname;
+      const isProtected = protectedPaths.some(path => currentPath.includes(path));
+      if (isProtected) {
+        window.location.href = '/login';
+      }
     },
 
     // 2. Generic Fetch request wrapper

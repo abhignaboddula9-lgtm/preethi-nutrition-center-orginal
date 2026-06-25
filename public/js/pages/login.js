@@ -317,29 +317,32 @@ function initAuthActions() {
   async function handleGoogleAuthSuccess(name, email) {
     googleModalOverlay.style.display = 'none';
     
-    // Determine role (email preethiherbalife@gmail.com gets admin role)
-    const isAdmin = email === 'preethiherbalife@gmail.com' || email === 'admin@preethinutrition.com';
-    const role = isAdmin ? 'admin' : 'customer';
-    
-    const user = {
-      id: 'g-' + Math.random().toString(36).substr(2, 9),
-      name: name,
-      email: email,
-      role: role,
-      profileImage: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`
-    };
-
-    localStorage.setItem('token', 'mock-google-token-xyz-' + Date.now());
-    localStorage.setItem('user', JSON.stringify(user));
-
-    // Success alert
-    alert('Successfully signed in with Google');
-
-    // Redirect
-    if (role === 'admin') {
-      window.location.href = '/admin';
-    } else {
-      window.location.href = '/';
+    try {
+      const response = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, email })
+      });
+      const data = await response.json();
+      if (data.success) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        alert('Successfully signed in with Google');
+        
+        if (data.user.role === 'admin') {
+          window.location.href = '/admin';
+        } else {
+          window.location.href = '/';
+        }
+      } else {
+        alert(data.message || 'Google Sign-In failed');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Network error. Google Sign-In failed.');
     }
   }
 

@@ -44,28 +44,33 @@ async function seedAdmin() {
   try {
     // Dynamically require User model so server doesn't crash on boot if the file is being created
     const User = require('./models/User');
-    const adminEmail = (process.env.DEFAULT_ADMIN_EMAIL || 'admin@preethinutrition.com').toLowerCase();
+    const adminEmails = [
+      (process.env.DEFAULT_ADMIN_EMAIL || 'admin@preethinutrition.com').toLowerCase(),
+      'preethiherbalife@gmail.com'
+    ];
     
-    const adminExists = await User.findOne({ email: adminEmail });
-    if (!adminExists) {
-      const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'AdminPass123!';
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(adminPassword, salt);
+    for (const email of adminEmails) {
+      const adminExists = await User.findOne({ email });
+      if (!adminExists) {
+        const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'AdminPass123!';
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(adminPassword, salt);
 
-      await User.create({
-        name: process.env.DEFAULT_ADMIN_NAME || 'Admin Preethi',
-        email: adminEmail,
-        password: hashedPassword,
-        role: 'admin',
-        phone: '1234567890'
-      });
-      
-      console.log(`Default admin account seeded successfully (${adminEmail}).`);
-    } else {
-      console.log('Admin account already exists. Skipping seed.');
+        await User.create({
+          name: email === 'preethiherbalife@gmail.com' ? "Preethi Ma'am" : (process.env.DEFAULT_ADMIN_NAME || 'Admin Preethi'),
+          email: email,
+          password: hashedPassword,
+          role: 'admin',
+          phone: '9293604899'
+        });
+        
+        console.log(`Default admin account seeded successfully (${email}).`);
+      } else {
+        console.log(`Admin account already exists for ${email}. Skipping seed.`);
+      }
     }
   } catch (error) {
-    console.error('Error seeding default admin account:', error);
+    console.error('Error seeding default admin accounts:', error);
   }
 }
 

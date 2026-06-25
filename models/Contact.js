@@ -6,6 +6,7 @@ const contactSchema = new mongoose.Schema({
   email: { type: String, default: '' },
   service: { type: String, default: '' },
   message: { type: String, default: '' },
+  responded: { type: Boolean, default: false },
   date: { type: String, required: true }, // Format: YYYY-MM-DD
   createdAt: { type: Date, default: Date.now }
 });

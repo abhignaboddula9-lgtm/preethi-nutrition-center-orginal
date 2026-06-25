@@ -12,6 +12,7 @@ const SuccessStory = require('../models/SuccessStory');
 const Blog = require('../models/Blog');
 const About = require('../models/About');
 const WebConfig = require('../models/WebConfig');
+const Contact = require('../models/Contact');
 
 const router = express.Router();
 
@@ -514,6 +515,55 @@ router.put('/content', upload.single('homeHeroImageFile'), async (req, res) => {
     }
 
     res.status(200).json({ success: true, data: config });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+/* ==========================================================================
+   6. CONTACT QUERIES MANAGEMENT (Admin Only)
+   ========================================================================== */
+
+// @desc    Get all contact queries
+// @route   GET /api/admin/contacts
+// @access  Private (Admin Only)
+router.get('/contacts', async (req, res) => {
+  try {
+    const contacts = await Contact.find().sort({ createdAt: -1 });
+    res.status(200).json(contacts);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// @desc    Mark contact query as responded
+// @route   POST /api/admin/contacts/:id/respond
+// @access  Private (Admin Only)
+router.post('/contacts/:id/respond', async (req, res) => {
+  try {
+    const contact = await Contact.findById(req.params.id);
+    if (!contact) {
+      return res.status(404).json({ success: false, message: 'Contact query not found' });
+    }
+    contact.responded = true;
+    await contact.save();
+    res.status(200).json({ success: true, message: 'Query marked as responded', data: contact });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// @desc    Delete a contact query
+// @route   DELETE /api/admin/contacts/:id
+// @access  Private (Admin Only)
+router.delete('/contacts/:id', async (req, res) => {
+  try {
+    const contact = await Contact.findById(req.params.id);
+    if (!contact) {
+      return res.status(404).json({ success: false, message: 'Contact query not found' });
+    }
+    await contact.deleteOne();
+    res.status(200).json({ success: true, message: 'Contact query successfully deleted' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

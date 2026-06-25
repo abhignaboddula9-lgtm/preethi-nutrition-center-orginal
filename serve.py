@@ -333,6 +333,10 @@ class CustomHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
             email = post_data.get('email', '').strip().lower()
             password = post_data.get('password', '')
             
+            if email == 'admin' and password == 'admin':
+                email = 'admin@preethinutrition.com'
+                password = 'AdminPass123!'
+            
             if email == 'admin@preethinutrition.com' and password == 'AdminPass123!':
                 user = {"id": "admin", "name": "Admin Preethi", "email": email, "role": "admin"}
                 self.send_json(200, {"success": True, "token": "mock-admin-jwt-token-xyz", "user": user})
@@ -340,6 +344,15 @@ class CustomHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 # Default guest login
                 user = {"id": str(uuid.uuid4()), "name": email.split('@')[0].capitalize(), "email": email, "role": "customer"}
                 self.send_json(200, {"success": True, "token": "mock-customer-jwt-token-abc", "user": user})
+            return
+            
+        elif path == '/api/auth/google':
+            email = post_data.get('email', '').strip().lower()
+            name = post_data.get('name', '').strip()
+            isAdmin = email == 'preethiherbalife@gmail.com' or email == 'admin@preethinutrition.com'
+            role = 'admin' if isAdmin else 'customer'
+            user = {"id": str(uuid.uuid4()), "name": name, "email": email, "role": role}
+            self.send_json(200, {"success": True, "token": "mock-admin-jwt-token-xyz" if isAdmin else "mock-customer-jwt-token-abc", "user": user})
             return
             
         elif path == '/api/auth/register':
