@@ -16,13 +16,16 @@ async function seedAdmin() {
     
     // Check if admin already exists
     const existingAdmin = await User.findOne({ email: adminEmail });
-    if (existingAdmin) {
-      console.log(`Admin account with email ${adminEmail} already exists. Skipping seed.`);
-    } else {
-      const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'AdminPass123!';
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(adminPassword, salt);
+    const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'Admin@123';
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(adminPassword, salt);
 
+    if (existingAdmin) {
+      existingAdmin.password = hashedPassword;
+      existingAdmin.role = 'admin';
+      await existingAdmin.save();
+      console.log(`Admin account (${adminEmail}) updated successfully with password.`);
+    } else {
       await User.create({
         name: process.env.DEFAULT_ADMIN_NAME || 'Admin Preethi',
         email: adminEmail,

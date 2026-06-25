@@ -335,9 +335,9 @@ class CustomHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
             
             if email == 'admin' and password == 'admin':
                 email = 'admin@preethinutrition.com'
-                password = 'AdminPass123!'
+                password = 'Admin@123'
             
-            if email == 'admin@preethinutrition.com' and password == 'AdminPass123!':
+            if email == 'admin@preethinutrition.com' and password == 'Admin@123':
                 user = {"id": "admin", "name": "Admin Preethi", "email": email, "role": "admin"}
                 self.send_json(200, {"success": True, "token": "mock-admin-jwt-token-xyz", "user": user})
             else:
@@ -826,7 +826,7 @@ if __name__ == '__main__':
     print("  Open: http://localhost:5000")
     print()
     print("  TEST ADMIN CREDENTIALS:")
-    print("  Admin: admin@preethinutrition.com / AdminPass123!")
+    print("  Admin: admin@preethinutrition.com / Admin@123")
     print("="*55 + "\n")
     try:
         server.serve_forever()

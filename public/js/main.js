@@ -17,34 +17,30 @@ function initThemeToggle() {
 
 /* --- 2. Dynamic Global Navbar & Footer Injection --- */
 async function injectGlobalNavbarAndFooter() {
-  let config = {
-    contactAddress: "Preethi Nutrition Center, Main Road, Block A, Bangalore, India",
-    contactPhone: "+91 98765 43210",
-    contactEmail: "info@preethinutrition.com",
-    operatingHours: "Mon - Fri: 6:00 AM - 11:30 AM, 4:30 PM - 8:30 PM | Sat: 6:00 AM - 12:00 PM | Sun: Closed"
-  };
-
-  try {
-    const res = await fetch('/api/content');
-    const data = await res.json();
-    if (data.success && data.data) {
-      config = { ...config, ...data.data };
-    }
-  } catch(e) {
-    console.warn("Could not load dynamic site config for footer, using default values.");
-  }
-
-  // ── Global override styles (Pink & Lavender) ──────────────────────────────
+  // ── Global override styles (Theme Adapted) ──────────────────────────────
   const overrideStyle = document.createElement('style');
   overrideStyle.innerHTML = `
     @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      --bg: #FFF8FC;
+      --bg-surface: #FFFFFF;
+      --text: #2D2D2D;
+      --text-muted: #4b5563;
+      --primary: #E75480;
+      --secondary: #C8A2C8;
+      --primary-glow: rgba(231, 84, 128, 0.08);
+      --secondary-glow: rgba(200, 162, 200, 0.08);
+      --border: rgba(231, 84, 128, 0.10);
+      --gradient-brand: linear-gradient(135deg, #E75480, #C86DD7);
+    }
 
     *, *::before, *::after { box-sizing: border-box; }
 
     body {
       font-family: 'Inter', sans-serif !important;
-      background-color: #FFF8FC !important;
-      color: #2D2D2D !important;
+      background-color: var(--bg) !important;
+      color: var(--text) !important;
       margin: 0 !important;
     }
 
@@ -58,14 +54,14 @@ async function injectGlobalNavbarAndFooter() {
       top: 0 !important;
       width: 100% !important;
       z-index: 1000 !important;
-      background: #FFFFFF !important;
-      border-bottom: 1px solid rgba(231, 84, 128, 0.10) !important;
+      background: var(--bg-surface) !important;
+      border-bottom: 1px solid var(--border) !important;
       padding: 0 !important;
-      box-shadow: 0 4px 24px rgba(231, 84, 128, 0.08) !important;
+      box-shadow: 0 4px 24px var(--primary-glow) !important;
       height: auto !important;
     }
     .navbar-header.shrink {
-      box-shadow: 0 2px 16px rgba(231, 84, 128, 0.12) !important;
+      box-shadow: 0 2px 16px var(--primary-glow) !important;
     }
 
     .nav-container-inner {
@@ -109,7 +105,7 @@ async function injectGlobalNavbarAndFooter() {
       font-family: 'Poppins', sans-serif !important;
       font-weight: 600 !important;
       font-size: 0.875rem !important;
-      color: #4b5563 !important;
+      color: var(--text-muted) !important;
       text-decoration: none !important;
       padding: 8px 12px !important;
       border-radius: 8px !important;
@@ -121,12 +117,12 @@ async function injectGlobalNavbarAndFooter() {
       cursor: pointer !important;
     }
     .nav-link-item:hover {
-      color: #C8A2C8 !important;
-      background-color: rgba(200, 162, 200, 0.08) !important;
+      color: var(--secondary) !important;
+      background-color: var(--secondary-glow) !important;
     }
     .nav-link-item.active {
-      color: #E75480 !important;
-      background-color: rgba(231, 84, 128, 0.06) !important;
+      color: var(--primary) !important;
+      background-color: var(--primary-glow) !important;
     }
     .nav-link-item.active::after {
       content: '';
@@ -135,7 +131,7 @@ async function injectGlobalNavbarAndFooter() {
       left: 12px;
       right: 12px;
       height: 2px;
-      background: linear-gradient(90deg, #E75480, #C8A2C8);
+      background: var(--gradient-brand);
       border-radius: 2px;
     }
 
@@ -148,7 +144,7 @@ async function injectGlobalNavbarAndFooter() {
     }
 
     .btn-pink-gradient {
-      background: linear-gradient(135deg, #E75480, #C86DD7) !important;
+      background: var(--gradient-brand) !important;
       color: #FFFFFF !important;
       border: none !important;
       border-radius: 50px !important;
@@ -162,11 +158,11 @@ async function injectGlobalNavbarAndFooter() {
       align-items: center !important;
       gap: 7px !important;
       transition: box-shadow 0.25s ease, transform 0.25s ease !important;
-      box-shadow: 0 4px 14px rgba(231, 84, 128, 0.30) !important;
+      box-shadow: 0 4px 14px var(--primary-glow) !important;
       white-space: nowrap !important;
     }
     .btn-pink-gradient:hover {
-      box-shadow: 0 6px 20px rgba(231, 84, 128, 0.45) !important;
+      box-shadow: 0 6px 20px var(--primary-glow) !important;
       transform: translateY(-1px) !important;
     }
 
@@ -175,7 +171,7 @@ async function injectGlobalNavbarAndFooter() {
       border: none !important;
       cursor: pointer !important;
       padding: 8px !important;
-      color: #E75480 !important;
+      color: var(--primary) !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
@@ -183,7 +179,7 @@ async function injectGlobalNavbarAndFooter() {
       transition: background-color 0.2s ease !important;
     }
     .btn-logout-pink:hover {
-      background-color: rgba(231, 84, 128, 0.10) !important;
+      background-color: var(--primary-glow) !important;
     }
 
     /* ── Hamburger ──────────────────────── */
@@ -201,7 +197,7 @@ async function injectGlobalNavbarAndFooter() {
     .hamburger-btn .bar {
       height: 2.5px !important;
       width: 100% !important;
-      background: linear-gradient(90deg, #E75480, #C8A2C8) !important;
+      background: var(--gradient-brand) !important;
       border-radius: 10px !important;
       transition: all 0.3s ease !important;
     }
@@ -216,13 +212,13 @@ async function injectGlobalNavbarAndFooter() {
       top: 83px;
       left: 0;
       right: 0;
-      background: #FFFFFF;
-      border-bottom: 1px solid rgba(231, 84, 128, 0.12);
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
       padding: 16px 24px 24px;
       flex-direction: column;
       gap: 4px;
       z-index: 999;
-      box-shadow: 0 12px 32px rgba(231, 84, 128, 0.10);
+      box-shadow: 0 12px 32px var(--primary-glow);
       animation: slideDown 0.25s ease;
     }
     .mobile-nav-drawer.open { display: flex !important; }
@@ -253,47 +249,47 @@ async function injectGlobalNavbarAndFooter() {
 
     /* ── Global button overrides ────────── */
     .btn-primary, .btn-gradient, button.btn-primary {
-      background: linear-gradient(135deg, #E75480, #C86DD7) !important;
+      background: var(--gradient-brand) !important;
       color: #FFFFFF !important;
       border: none !important;
       border-radius: 50px !important;
     }
     .btn-secondary, button.btn-secondary {
       background: transparent !important;
-      border: 2px solid #C8A2C8 !important;
-      color: #C8A2C8 !important;
+      border: 2px solid var(--secondary) !important;
+      color: var(--secondary) !important;
       border-radius: 50px !important;
     }
     .btn-secondary:hover {
-      background: #C8A2C8 !important;
+      background: var(--secondary) !important;
       color: #FFFFFF !important;
     }
     .btn-outline {
-      border: 2px solid #E75480 !important;
-      color: #E75480 !important;
+      border: 2px solid var(--primary) !important;
+      color: var(--primary) !important;
       border-radius: 50px !important;
       background: transparent !important;
     }
     .btn-outline:hover {
-      background: #E75480 !important;
+      background: var(--primary) !important;
       color: #FFFFFF !important;
     }
 
     /* ── Icon colors ────────────────────── */
-    .icon-pink { color: #E75480 !important; stroke: #E75480 !important; }
-    .icon-lavender { color: #C8A2C8 !important; stroke: #C8A2C8 !important; }
+    .icon-pink { color: var(--primary) !important; stroke: var(--primary) !important; }
+    .icon-lavender { color: var(--secondary) !important; stroke: var(--secondary) !important; }
 
     /* ── Section & card polish ──────────── */
     .glass-panel, .glass-card {
-      background: #FFFFFF !important;
-      border: 1px solid rgba(231, 84, 128, 0.10) !important;
+      background: var(--bg-surface) !important;
+      border: 1px solid var(--border) !important;
       border-radius: 20px !important;
-      box-shadow: 0 8px 32px rgba(231, 84, 128, 0.07) !important;
+      box-shadow: 0 8px 32px var(--primary-glow) !important;
     }
 
     /* ── Footer ─────────────────────────── */
     footer.footer {
-      background: linear-gradient(135deg, #E75480 0%, #C86DD7 60%, #C8A2C8 100%) !important;
+      background: var(--gradient-brand) !important;
       color: #FFFFFF !important;
       border-top: none !important;
       padding: 80px 0 32px !important;
@@ -322,8 +318,8 @@ async function injectGlobalNavbarAndFooter() {
     footer.footer svg, footer.footer i { stroke: rgba(255,255,255,0.90) !important; color: rgba(255,255,255,0.90) !important; }
 
     /* ── Active page highlight in footer ── */
-    .section-sub { color: #E75480 !important; }
-    .section-title { color: #2D2D2D !important; }
+    .section-sub { color: var(--primary) !important; }
+    .section-title { color: var(--text) !important; }
 
     /* ── Logo fallback size fix for existing .logo markup ── */
     .logo img.logo-img {
@@ -334,6 +330,23 @@ async function injectGlobalNavbarAndFooter() {
     }
   `;
   document.head.appendChild(overrideStyle);
+
+  let config = {
+    contactAddress: "Preethi Nutrition Center, Main Road, Block A, Bangalore, India",
+    contactPhone: "+91 98765 43210",
+    contactEmail: "info@preethinutrition.com",
+    operatingHours: "Mon - Fri: 6:00 AM - 11:30 AM, 4:30 PM - 8:30 PM | Sat: 6:00 AM - 12:00 PM | Sun: Closed"
+  };
+
+  try {
+    const res = await fetch('/api/content');
+    const data = await res.json();
+    if (data.success && data.data) {
+      config = { ...config, ...data.data };
+    }
+  } catch(e) {
+    console.warn("Could not load dynamic site config for footer, using default values.");
+  }
 
   // ── Session ────────────────────────────────────────────────────────────────
   const token = localStorage.getItem('token');

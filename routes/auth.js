@@ -84,7 +84,7 @@ router.post('/login', async (req, res) => {
 
     if (emailLower === 'admin' && loginPassword === 'admin') {
       emailLower = 'admin@preethinutrition.com';
-      loginPassword = 'AdminPass123!';
+      loginPassword = 'Admin@123';
     }
 
     // Find User
@@ -136,7 +136,7 @@ router.post('/admin/login', async (req, res) => {
 
     if (emailLower === 'admin' && loginPassword === 'admin') {
       emailLower = 'admin@preethinutrition.com';
-      loginPassword = 'AdminPass123!';
+      loginPassword = 'Admin@123';
     }
 
     // Find User

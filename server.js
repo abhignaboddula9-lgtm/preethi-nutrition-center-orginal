@@ -51,11 +51,11 @@ async function seedAdmin() {
     
     for (const email of adminEmails) {
       const adminExists = await User.findOne({ email });
-      if (!adminExists) {
-        const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'AdminPass123!';
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(adminPassword, salt);
+      const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'Admin@123';
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(adminPassword, salt);
 
+      if (!adminExists) {
         await User.create({
           name: email === 'preethiherbalife@gmail.com' ? "Preethi Ma'am" : (process.env.DEFAULT_ADMIN_NAME || 'Admin Preethi'),
           email: email,
@@ -63,10 +63,12 @@ async function seedAdmin() {
           role: 'admin',
           phone: '9293604899'
         });
-        
         console.log(`Default admin account seeded successfully (${email}).`);
       } else {
-        console.log(`Admin account already exists for ${email}. Skipping seed.`);
+        adminExists.password = hashedPassword;
+        adminExists.role = 'admin';
+        await adminExists.save();
+        console.log(`Admin account updated successfully with password (${email}).`);
       }
     }
   } catch (error) {
