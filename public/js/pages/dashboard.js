@@ -2,7 +2,8 @@
 const originalFetch = window.fetch;
 window.fetch = async function (...args) {
   const response = await originalFetch(...args);
-  if ((response.status === 401 || response.status === 403) && !args[0].includes('/api/auth/')) {
+  const url = (typeof args[0] === 'string') ? args[0] : (args[0] && args[0].url ? args[0].url : '');
+  if ((response.status === 401 || response.status === 403) && !url.includes('/api/auth/')) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('preethi_user_session');

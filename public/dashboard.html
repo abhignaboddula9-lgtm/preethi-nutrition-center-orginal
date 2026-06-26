@@ -2,6 +2,29 @@
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
+  <script>
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.error("Uncaught error:", message, "at", source, ":", lineno);
+      const errDiv = document.createElement('div');
+      errDiv.className = 'debug-error-banner';
+      errDiv.style.position = 'fixed';
+      errDiv.style.top = '0';
+      errDiv.style.left = '0';
+      errDiv.style.right = '0';
+      errDiv.style.background = '#ef4444';
+      errDiv.style.color = '#ffffff';
+      errDiv.style.padding = '12px 20px';
+      errDiv.style.zIndex = '999999';
+      errDiv.style.fontFamily = 'monospace';
+      errDiv.style.fontSize = '12px';
+      errDiv.style.lineHeight = '1.4';
+      errDiv.style.textAlign = 'left';
+      errDiv.style.borderBottom = '3px solid #b91c1c';
+      errDiv.innerHTML = "<strong>Client-side error detected:</strong> " + message + " <br><small>at " + source + ":" + lineno + ":" + colno + "</small>";
+      document.body.appendChild(errDiv);
+      return false;
+    };
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Client Portal Dashboard | Preethi Nutrition Center</title>
   
