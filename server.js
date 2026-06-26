@@ -43,8 +43,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve Static Files
-// Serve general public folder
-app.use(express.static(path.join(__dirname, 'public')));
+const distPath = path.join(__dirname, 'dist');
+const publicPath = path.join(__dirname, 'public');
+
+// Serve React dist folder first if it exists
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+}
+// Fallback to public folder
+app.use(express.static(publicPath));
 // Serve uploads folder specifically if needed
 app.use('/uploads', express.static(uploadsDir));
 
@@ -87,66 +94,7 @@ async function seedAdmin() {
   }
 }
 
-// Frontend Clean Page Routes
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-app.get('/about', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'about.html'));
-});
-app.get('/services', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'services.html'));
-});
-app.get('/diet', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'diet.html'));
-});
-app.get('/zumba', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'zumba.html'));
-});
-app.get('/products', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'products.html'));
-});
-app.get('/success', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'success.html'));
-});
-app.get('/blog', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'blog.html'));
-});
-app.get('/contact', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'contact.html'));
-});
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-app.get('/admin-login', (req, res) => {
-  res.redirect('/login');
-});
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-});
-app.get('/dashboard', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
-});
-
-// Program Specific Routes
-app.get('/weight-loss', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'weight-loss.html'));
-});
-app.get('/weight-gain', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'weight-gain.html'));
-});
-app.get('/diet-consultation', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'diet-consultation.html'));
-});
-app.get('/nutrition-counseling', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'nutrition-counseling.html'));
-});
-app.get('/healthy-meal-planning', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'healthy-meal-planning.html'));
-});
-app.get('/fitness-guidance', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'fitness-guidance.html'));
-});
+// Frontend Clean Page Routes Removed (Now handled by wildcard router)
 
 // Database connection status check middleware for all API requests
 app.use('/api', (req, res, next) => {
@@ -171,6 +119,34 @@ app.use('/api/about', require('./routes/content'));
 app.use('/api/contact', require('./routes/contact'));
 app.use('/api/appointments', require('./routes/appointments'));
 
+// Wildcard route to handle clean URLs for the multi-page HTML frontend
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/')) {
+    return next();
+  }
+  
+  // Clean URL mapping for HTML files (e.g., /about -> /about.html)
+  const cleanPath = req.path === '/' ? '/index.html' : req.path;
+  let htmlPath = path.join(publicPath, cleanPath);
+  
+  if (!path.extname(cleanPath)) {
+    htmlPath += '.html';
+  }
+
+  if (fs.existsSync(htmlPath)) {
+    return res.sendFile(htmlPath);
+  }
+
+  // React Router fallback (if they ever switch to React)
+  const distIndex = path.join(__dirname, 'dist', 'index.html');
+  if (fs.existsSync(distIndex)) {
+    return res.sendFile(distIndex);
+  }
+
+  // Final fallback to public/index.html
+  res.sendFile(path.join(publicPath, 'index.html'));
+});
+
 // Global Error Handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -180,38 +156,38 @@ app.use((err, req, res, next) => {
   });
 });
 
-// MongoDB Connection Logic & Server Boot (Fail-fast in Production)
+// MongoDB Connection Logic & Server Boot (Resilient in Production)
 const startServer = async () => {
   const rawMongoURI = process.env.MONGO_URI;
   if (!rawMongoURI) {
-    console.error('CRITICAL STARTUP ERROR: MONGO_URI environment variable is not defined.');
-    process.exit(1);
+    console.warn('WARNING: MONGO_URI environment variable is not defined.');
+    console.warn('Database features will be offline.');
+  } else {
+    const mongoURI = rawMongoURI.trim();
+    console.log('MONGO_URI environment variable exists.');
+
+    try {
+      // Sanitize credentials out of connection string before logging
+      const connStrLog = mongoURI.replace(/mongodb(\+srv)?:\/\/([^@]+)@/, 'mongodb$1://***:***@');
+      console.log(`Connecting to MongoDB at: ${connStrLog}...`);
+
+      await mongoose.connect(mongoURI, {
+        serverSelectionTimeoutMS: 10000 // fail fast if Atlas is not reachable
+      });
+      
+      // Seed admin accounts after successful connection
+      await seedAdmin();
+    } catch (err) {
+      console.error('CRITICAL STARTUP ERROR: MongoDB connection failed! Running in degraded mode.');
+      console.error(err.stack || err);
+      // Removed process.exit(1) to allow Render zero-downtime deployment to succeed
+    }
   }
 
-  const mongoURI = rawMongoURI.trim();
-  console.log('MONGO_URI environment variable exists.');
-
-  try {
-    // Sanitize credentials out of connection string before logging
-    const connStrLog = mongoURI.replace(/mongodb(\+srv)?:\/\/([^@]+)@/, 'mongodb$1://***:***@');
-    console.log(`Connecting to MongoDB at: ${connStrLog}...`);
-
-    await mongoose.connect(mongoURI, {
-      serverSelectionTimeoutMS: 10000 // fail fast if Atlas is not reachable (10 seconds timeout)
-    });
-    
-    // Seed admin accounts after successful connection
-    await seedAdmin();
-
-    // Start listening only AFTER database connection is ready
-    app.listen(PORT, () => {
-      console.log(`Server is running in ${process.env.NODE_ENV || 'production'} mode on port ${PORT}`);
-    });
-  } catch (err) {
-    console.error('CRITICAL STARTUP ERROR: MongoDB connection failed!');
-    console.error(err.stack || err);
-    process.exit(1);
-  }
+  // Start listening REGARDLESS of database connection status
+  app.listen(PORT, () => {
+    console.log(`Server is running in ${process.env.NODE_ENV || 'production'} mode on port ${PORT}`);
+  });
 };
 
 startServer();
