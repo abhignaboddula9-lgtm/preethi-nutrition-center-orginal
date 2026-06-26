@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   verifyAdminAuth();
   initThemeToggle();
   initTabNavigation();
-  initAboutTab();
+  initSettingsTab();
   initAppointmentsTab();
   initUsersTab();
   initMediaTab();
@@ -155,7 +155,7 @@ function initTabNavigation() {
     if (tabTitleEl) {
       const btnMap = {
         overview: 'Overview Statistics',
-        about: 'Edit About Content',
+        settings: 'Settings',
         appointments: 'Manage Appointments',
         users: 'User Management',
         media: 'Media Library',
@@ -193,9 +193,9 @@ function showAlert(type, message) {
 }
 
 /* --- 4. Site Configuration Manager Form Logic --- */
-function initAboutTab() {
-  const aboutForm = document.getElementById('aboutForm');
-  if (!aboutForm) return;
+function initSettingsTab() {
+  const settingsForm = document.getElementById('settingsForm');
+  if (!settingsForm) return;
 
   const homeHeroTitle = document.getElementById('homeHeroTitle');
   const homeHeroSubtitle = document.getElementById('homeHeroSubtitle');
@@ -244,7 +244,7 @@ function initAboutTab() {
   loadConfigCurrent();
 
   // Handle Save
-  aboutForm.addEventListener('submit', async (e) => {
+  settingsForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const formData = new FormData();
