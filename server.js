@@ -42,17 +42,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve Static Files
-const distPath = path.join(__dirname, 'dist');
+// Serve Static Files - Multi-Page HTML App
 const publicPath = path.join(__dirname, 'public');
 
-// Serve React dist folder first if it exists
-if (fs.existsSync(distPath)) {
-  app.use(express.static(distPath));
-}
-// Fallback to public folder
+// Serve public folder (HTML pages, CSS, JS, images)
 app.use(express.static(publicPath));
-// Serve uploads folder specifically if needed
+// Serve uploads folder
 app.use('/uploads', express.static(uploadsDir));
 
 
@@ -119,13 +114,14 @@ app.use('/api/about', require('./routes/content'));
 app.use('/api/contact', require('./routes/contact'));
 app.use('/api/appointments', require('./routes/appointments'));
 
-// Wildcard route to handle clean URLs for the multi-page HTML frontend
+// Wildcard route - clean URL routing for multi-page HTML app
+// Maps /about -> public/about.html, /login -> public/login.html, etc.
 app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/')) {
     return next();
   }
   
-  // Clean URL mapping for HTML files (e.g., /about -> /about.html)
+  // Map clean URL to .html file in public/
   const cleanPath = req.path === '/' ? '/index.html' : req.path;
   let htmlPath = path.join(publicPath, cleanPath);
   
@@ -135,12 +131,6 @@ app.get('*', (req, res, next) => {
 
   if (fs.existsSync(htmlPath)) {
     return res.sendFile(htmlPath);
-  }
-
-  // React Router fallback (if they ever switch to React)
-  const distIndex = path.join(__dirname, 'dist', 'index.html');
-  if (fs.existsSync(distIndex)) {
-    return res.sendFile(distIndex);
   }
 
   // Final fallback to public/index.html
